@@ -3,13 +3,16 @@ const express = require('express');
 const mongoose = require('mongoose');
 const db = require('./config/mongoose');
 const Food = require('./models/food');
+const cors = require('cors');
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
-app.get('/', async (req, res)=>{
-    const food = new Food({FoodName: 'apple', daysSinceIAte: 3});
+app.post('/insert', async (req, res)=>{
+    const {foodName, days} = req.body;
+    const food = new Food({FoodName: foodName, daysSinceIAte: days});
     try{
         await food.save();
         return res.send('Hello World!!');
@@ -18,7 +21,19 @@ app.get('/', async (req, res)=>{
     }
 });
 
-app.listen(3000, (err)=>{
+app.get('/read', async (req, res)=>{
+    
+    try{
+        const result = await Food.find({});
+        return res.send(result);
+    }catch(err){
+        console.log("Error", err);
+        return res.send('Error in the request method');
+    }
+
+});
+
+app.listen(3001, (err)=>{
     if(err){
         console.log('Error in running the server ', err);
         return;
